@@ -280,8 +280,8 @@ int32_t main(int32_t argc, char **argv) {
             }
             */
           
-            float posC0 = -0.12086f;
-            float posC1 = 13.47929f;
+            float posC0 = -0.11347f;
+            float posC1 = 10.94322f;
             float longitudinal = posC0 * detection.h + posC1;
 
             float posC2 = 0.7417649f;
@@ -289,7 +289,7 @@ int32_t main(int32_t argc, char **argv) {
             float angle = posC2 * (halfWidth - (detection.x + detection.w / 2) 
                 / halfWidth);
 
-            float lateral = longitudinal / tan(angle);
+            float lateral = longitudinal / static_cast<float>(tan(angle));
 
             opendlv::logic::perception::ObjectPosition conePos;
             conePos.x(longitudinal);
