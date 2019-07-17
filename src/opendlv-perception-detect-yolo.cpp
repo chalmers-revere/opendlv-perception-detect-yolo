@@ -280,23 +280,23 @@ int32_t main(int32_t argc, char **argv) {
             }
             */
           
-            float posC0 = -0.11347f;
-            float posC1 = 10.94322f;
-            float longitudinal = posC0 * detection.h + posC1;
+            float coneCenterI = detection.x + static_cast<float>(detection.w) / 2.0f;
+            float coneCenterJ = detection.y + detection.h;
 
-            float posC2 = 0.7417649f;
-            float halfWidth = static_cast<float>(width) / 2.0f;
-            float angle = posC2 * (halfWidth - (detection.x + detection.w / 2) 
-                / halfWidth);
+            float posC0 = 0.93333f;
+            float posC1 = -10.88f;
+            float longitudinal = posC0 * (height - coneCenterJ) + posC1;
 
-            float lateral = longitudinal / static_cast<float>(tan(angle));
+            float posC2 = -0.00014082f;
+            float posC3 = 0.08631419f;
+            float dx = posC2 * coneCenterJ + posC3;
+            float lateral = dx * (static_cast<float>(width) / 2.0f - coneCenterI);
 
             opendlv::logic::perception::ObjectPosition conePos;
             conePos.x(longitudinal);
             conePos.y(lateral);
             conePos.objectId(objectId);
             od4.send(conePos, ts, id);
-
 
             if (verbose) {
               std::cout << "  ...object-id=" << objectId << " i=" << detection.x
