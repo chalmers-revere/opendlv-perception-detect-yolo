@@ -304,8 +304,7 @@ int32_t main(int32_t argc, char **argv) {
                 << detection.h << ", prob=" << detection.prob << ", id=" 
                 << detection.obj_id << ", tack id=" << detection.track_id 
                 << ", frame=" << frameCount << ", x=" 
-                << detection.z_3d << ", y=" << -detection.x_3d << ", z=" 
-                << detection.y_3d << std::endl;
+                << longitudinal << ", y=" << lateral << std::endl;
 
               std::array<std::array<uint8_t, 3>, 8> colors{{
                 {{255, 255, 0}},
