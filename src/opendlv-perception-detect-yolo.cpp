@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -269,6 +270,7 @@ int32_t main(int32_t argc, char **argv) {
             coneType.objectId(objectId);
             od4.send(coneType, ts, id);
 
+            /*
             if (!(std::isnan(detection.x_3d) && std::isnan(detection.y_3d))) {
               opendlv::logic::perception::ObjectPosition conePos;
               conePos.x(detection.z_3d);
@@ -276,6 +278,25 @@ int32_t main(int32_t argc, char **argv) {
               conePos.objectId(objectId);
               od4.send(conePos, ts, id);
             }
+            */
+          
+            float posC0 = -0.12086f;
+            float posC1 = 13.47929f;
+            float longitudinal = posC0 * detection.h + posC1;
+
+            float posC2 = 0.7417649f;
+            float halfWidth = static_cast<float>(width) / 2.0f;
+            float angle = posC2 * (halfWidth - (detection.x + detection.w / 2) 
+                / halfWidth);
+
+            float lateral = longitudinal / tan(angle);
+
+            opendlv::logic::perception::ObjectPosition conePos;
+            conePos.x(longitudinal);
+            conePos.y(lateral);
+            conePos.objectId(objectId);
+            od4.send(conePos, ts, id);
+
 
             if (verbose) {
               std::cout << "  ...object-id=" << objectId << " i=" << detection.x
