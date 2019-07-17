@@ -283,7 +283,7 @@ int32_t main(int32_t argc, char **argv) {
             float coneCenterI = detection.x + static_cast<float>(detection.w) / 2.0f;
             float coneCenterJ = detection.y + detection.h;
 
-            float posC0 = 0.93333f;
+            float posC0 = 0.093333f;
             float posC1 = -10.88f;
             float longitudinal = posC0 * (height - coneCenterJ) + posC1;
 
