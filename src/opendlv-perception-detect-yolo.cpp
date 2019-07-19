@@ -156,7 +156,8 @@ int32_t main(int32_t argc, char **argv) {
       std::clog << argv[0] << ": Attached to shared ARGB memory '" 
         << shmArgb->name() << " (" << shmArgb->size() 
         << " bytes)." << std::endl;
-    
+   
+     /* 
     std::cout << "Connecting to shared memory " << nameXyz << std::endl;
       std::unique_ptr<cluon::SharedMemory> shmXyz{
         new cluon::SharedMemory{nameXyz}};
@@ -165,6 +166,7 @@ int32_t main(int32_t argc, char **argv) {
           << shmXyz->name() << " (" << shmXyz->size() 
           << " bytes)." << std::endl;
       }
+      */
 
       image_t yoloImg;
       yoloImg.w = detector.get_net_width();
@@ -222,7 +224,8 @@ int32_t main(int32_t argc, char **argv) {
         }
 
         detections = detector.tracking_id(detections, true, 5, 40);
-        
+       
+       /* 
         shmXyz->wait();
         shmXyz->lock();
         {
@@ -241,7 +244,7 @@ int32_t main(int32_t argc, char **argv) {
           }
         }
         shmXyz->unlock();
-
+*/
 
         if (verbose) {
           float fps = 1000000.0f /
