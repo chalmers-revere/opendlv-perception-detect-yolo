@@ -26,6 +26,8 @@
 
 #include <yolo_v2_class.hpp>
 
+#include "cuda_runtime.h"
+
 #include "cluon-complete.hpp"
 #include "opendlv-standard-message-set.hpp"
 
@@ -122,11 +124,14 @@ int32_t main(int32_t argc, char **argv) {
     std::cerr << "     --width: the width of the images " << std::endl;
     std::cerr << "     --height: the height of the images " << std::endl;
     std::cerr << "     --id: sender id of output messages" << std::endl;
+    std::cerr << "     --gpu-id: the GPU to use" << std::endl;
+    std::cerr << "     --no-gpu: use CPU instead of GPU" << std::endl;
     std::cerr << "     --verbose: prints diagnostics data to screen" 
       << std::endl;
     std::cerr << "Example: " << argv[0] << " --cfg-file=yolo.cfg "
       << "--weight-file=yolo.weight --width=1280 --height=720 "
-      << "[--name=video0.argb] [--name-depth=video0-depth] [--id=0] [--verbose]" 
+      << "[--name=video0.argb] [--name-depth=video0-depth] [--id=0] "
+      << "[--gpu-id=0] [--no-gpu=0] [--verbose]" 
       << std::endl;
   } else {
     std::string const name{(commandlineArguments["name"].size() != 0) ? 
@@ -138,7 +143,22 @@ int32_t main(int32_t argc, char **argv) {
         std::stoi(commandlineArguments["height"]))};
     uint32_t const id{(commandlineArguments["id"].size() != 0) ?
       static_cast<uint32_t>(std::stoi(commandlineArguments["id"])) : 0};
+    uint32_t const gpuId{(commandlineArguments["gpu-id"].size() != 0) ?
+      static_cast<uint32_t>(std::stoi(commandlineArguments["gpu-id"])) : 0};
+    bool const noGpu{commandlineArguments.count("no-gpu") != 0};
     bool const verbose{commandlineArguments.count("verbose") != 0};
+
+    {
+      cudaError_t status;
+      if (noGpu) {
+        status = cudaSetDevice(-1);
+      } else {
+        status = cudaSetDevice(gpuId);
+      }
+      if (status != cudaSuccess) {
+        std::cout << "CUDA error: " << cudaGetErrorString(status) << std::endl;
+      }
+    }
     
     Display* display{nullptr};
     Visual* visual{nullptr};
