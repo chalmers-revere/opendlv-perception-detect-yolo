@@ -125,13 +125,12 @@ int32_t main(int32_t argc, char **argv) {
     std::cerr << "     --verbose: prints diagnostics data to screen" 
       << std::endl;
     std::cerr << "Example: " << argv[0] << " --cfg-file=yolo.cfg "
-      << "--weight-file=yolo.weight --width=1280 --height=720 [--name=video0] "
-      << "[--name-depth=video0-depth] [--id=0] [--verbose]" << std::endl;
+      << "--weight-file=yolo.weight --width=1280 --height=720 "
+      << "[--name=video0.argb] [--name-depth=video0-depth] [--id=0] [--verbose]" 
+      << std::endl;
   } else {
     std::string const name{(commandlineArguments["name"].size() != 0) ? 
-      commandlineArguments["name"] : "video0"};
-    std::string const nameArgb{name + ".argb"};
-    std::string const nameXyz{name + ".xyz"};
+      commandlineArguments["name"] : "video0.argb"};
 
     uint32_t const width{static_cast<uint32_t>(
         std::stoi(commandlineArguments["width"]))};
@@ -149,25 +148,14 @@ int32_t main(int32_t argc, char **argv) {
     Detector detector(commandlineArguments["cfg-file"],
         commandlineArguments["weight-file"]);
 
-    std::cout << "Connecting to shared memory " << nameArgb << std::endl;
+    std::cout << "Connecting to shared memory " << name << std::endl;
     std::unique_ptr<cluon::SharedMemory> shmArgb{
-      new cluon::SharedMemory{nameArgb}};
+      new cluon::SharedMemory{name}};
     if (shmArgb && shmArgb->valid()) {
       std::clog << argv[0] << ": Attached to shared ARGB memory '" 
         << shmArgb->name() << " (" << shmArgb->size() 
         << " bytes)." << std::endl;
    
-     /* 
-    std::cout << "Connecting to shared memory " << nameXyz << std::endl;
-      std::unique_ptr<cluon::SharedMemory> shmXyz{
-        new cluon::SharedMemory{nameXyz}};
-      if (shmXyz && shmXyz->valid()) {
-        std::clog << argv[0] << ": Attached to shared depth memory '" 
-          << shmXyz->name() << " (" << shmXyz->size() 
-          << " bytes)." << std::endl;
-      }
-      */
-
       image_t yoloImg;
       yoloImg.w = detector.get_net_width();
       yoloImg.h = detector.get_net_height();
@@ -224,27 +212,6 @@ int32_t main(int32_t argc, char **argv) {
         }
 
         detections = detector.tracking_id(detections, true, 5, 40);
-       
-       /* 
-        shmXyz->wait();
-        shmXyz->lock();
-        {
-          char *depthData = shmXyz->data();
-          for (auto &detection : detections) {
-            uint32_t i = static_cast<uint32_t>(
-                detection.x + detection.w * 0.5f);
-            uint32_t j = static_cast<uint32_t>(
-                detection.y + detection.h * 0.5f);
-            
-            memcpy(&detection.x_3d, depthData + (j * width * 16 + i * 16), 4);
-            memcpy(&detection.y_3d,
-                depthData + (j * width * 16 + i * 16 + 4), 4);
-            memcpy(&detection.z_3d,
-                depthData + (j * width * 16 + i * 16 + 8), 4);
-          }
-        }
-        shmXyz->unlock();
-*/
 
         if (verbose) {
           float fps = 1000000.0f /
@@ -273,17 +240,8 @@ int32_t main(int32_t argc, char **argv) {
             coneType.objectId(objectId);
             od4.send(coneType, ts, id);
 
-            /*
-            if (!(std::isnan(detection.x_3d) && std::isnan(detection.y_3d))) {
-              opendlv::logic::perception::ObjectPosition conePos;
-              conePos.x(detection.z_3d);
-              conePos.y(-detection.x_3d);
-              conePos.objectId(objectId);
-              od4.send(conePos, ts, id);
-            }
-            */
-          
-            float coneCenterI = detection.x + static_cast<float>(detection.w) / 2.0f;
+            float coneCenterI = detection.x 
+              + static_cast<float>(detection.w) / 2.0f;
             float coneCenterJ = detection.y + detection.h;
 
             float posC0 = 0.093333f;
@@ -293,7 +251,8 @@ int32_t main(int32_t argc, char **argv) {
             float posC2 = -0.00014082f;
             float posC3 = 0.08631419f;
             float dx = posC2 * coneCenterJ + posC3;
-            float lateral = dx * (static_cast<float>(width) / 2.0f - coneCenterI);
+            float lateral = dx 
+              * (static_cast<float>(width) / 2.0f - coneCenterI);
 
             opendlv::logic::perception::ObjectPosition conePos;
             conePos.x(longitudinal);
@@ -336,7 +295,7 @@ int32_t main(int32_t argc, char **argv) {
 
         if (verbose) {
           XPutImage(display, window, DefaultGC(display, 0), ximage, 0, 0, 0, 0,
-              yoloImg.w, yoloImg.h);
+              width, height);
         }
         frameCount++;
       }
