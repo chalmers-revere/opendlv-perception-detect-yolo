@@ -1,3 +1,5 @@
+Moved to https://git.opendlv.org.
+
 # OpenDLV microservice to detect objects in a video feed by using Yolo (optional GPU acceleration)
 
 ## Usage
